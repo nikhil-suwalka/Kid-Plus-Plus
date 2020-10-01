@@ -1,5 +1,5 @@
 a is 5
 b is 10
 x is a+b
-x is True
+x is true
 print 'My name is ',x

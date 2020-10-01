@@ -3,10 +3,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class UtilityFunctions {
-
-    static Map<String, Object> map = new HashMap<>();
+    
     static final ArrayList<String> keywords = new ArrayList<>(Arrays.asList("is", "has", "print", "add", "find", "sort", "remove", "at", "if", "then", "else", "loop", "till", "stop", "end", "from", "to", "as", "gets", "function", "call", "with"));
-
+    static Map<String, Object> map = new HashMap<>();
+    
     public static String fixSpace(String data) {
         List<Character> dataArr = data.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
         ArrayList<Character> operator = new ArrayList<>(Arrays.asList('+', '-', '*', '/', '%', '(', ')'));
@@ -28,16 +28,16 @@ public class UtilityFunctions {
             dataArr.remove(dataArr.size() - 1);
         return dataArr.stream().map(String::valueOf).collect(Collectors.joining());
     }
-
+    
     public static boolean isNumeric(String strNum) {
         Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
-
+        
         if (strNum == null) {
             return false;
         }
         return pattern.matcher(strNum).matches();
     }
-
+    
     //  1:String 2:Long 3:Double 4:Boolean -1:Invalid
     public static int findDataType(String value) {
         Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
@@ -55,22 +55,22 @@ public class UtilityFunctions {
             if ((value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"') || (value.charAt(0) == '\'' && value.charAt(value.length() - 1) == '\'')) {
                 return 1;
             }
-            if (value.equals("True") || value.equals("False")) {
+            if (value.equals("true") || value.equals("false")) {
                 return 4;
-
+                
             } else {
                 return -1;
             }
         }
     }
-
+    
     public static boolean checkVariableName(String var) {
         Pattern pattern = Pattern.compile("^[a-zA-Z_$][a-zA-Z_$0-9]*$");
         return pattern.matcher(var).matches();
     }
-
+    
     public static boolean setDataType(String name, String value) {
-
+        
         if (findDataType(value) == 1) {
             map.put(name, value);
             return true;
@@ -85,30 +85,30 @@ public class UtilityFunctions {
             return true;
         } else return false;
     }
-
+    
     public static boolean isANumberOrOperator(String var) {
         Pattern pattern = Pattern.compile("[()+\\-*/.%]|[0-9]+");
         return pattern.matcher(var).matches();
     }
-
+    
     static ArrayList<String> convertToArray(String str) throws CantFindSymbol, InvalidOperation {
-
+        
         ArrayList<String> list = new ArrayList<>();
         StringBuilder stringBuilder = new StringBuilder();
-
-
+        
+        
         ArrayList<String> words = new ArrayList<>(Arrays.asList(str.split(",")));
         ArrayList<String> split_word;
-
+        
         int i = 0;
         String word, w;
-
+        
         while (i < words.size()) {
             word = words.get(i).trim();
             if ((word.startsWith("\"") && word.endsWith("\"")) || (word.startsWith("'") && word.endsWith("'"))) {
                 list.add(word);
             } else {
-
+                
                 word = fixSpace(word);
                 split_word = new ArrayList<>(Arrays.asList(word.split(" ")));
                 stringBuilder.setLength(0);
@@ -131,31 +131,36 @@ public class UtilityFunctions {
                     }
                     list.add(stringBuilder.toString().trim());
                     stringBuilder.setLength(0);
-
+                    
                 } else if (isNumeric(word)) {
                     list.add(word.trim() + " ");
                 } else {
-                    if (map.containsKey(word)) {
+                    System.out.println(word);
+                    if (word.equals("true") || word.equals("false")) {
+                        list.add(word);
+                    } else if (map.containsKey(word)) {
                         Object ob = map.get(word);
                         if (ob instanceof String)
                             list.add((String) ob);
                         else if (ob instanceof Integer)
                             list.add(Long.toString((long) ob));
-                        else
+                        else if (ob instanceof Double)
                             list.add(Double.toString((Double) ob));
+                        else if (ob instanceof Boolean)
+                            list.add(Boolean.toString((Boolean) ob));
                     } else throw new CantFindSymbol(word);
-                    ;
+                    
                 }
             }
-
+            
             i++;
         }
-
+        
         if (stringBuilder.length() > 0)
             list.add(stringBuilder.toString().trim());
         return list;
     }
-
+    
     public static String evaluateExpression(String rhs) {
         try {
             //setDataType(data.get(0),ExpEval.evaluate().toString());
@@ -179,7 +184,7 @@ public class UtilityFunctions {
         }
         return null;
     }
-
+    
     public static void handler(String code) throws InvalidVariableName {
         String[] words = code.split(" ");
         if (!keywords.contains(words[0])) {//new variable
@@ -195,5 +200,5 @@ public class UtilityFunctions {
             System.out.println(evaluateExpression(exp[1]).replaceAll("[\"']", ""));
         }
     }
-
+    
 }
