@@ -162,11 +162,7 @@ public class UtilityFunctions {
     static ArrayList<String> getValue(String str) throws CantFindSymbol, InvalidOperation {
         
         ArrayList<String> list = convertToArray(str);
-        
-//        for (String s : list) {
-//            System.out.println(s);
-//        }
-        
+
         return list;
     }
 
