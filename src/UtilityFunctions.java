@@ -77,6 +77,7 @@ public class UtilityFunctions {
         throw new InvalidExpression();
     }
     
+    
     public static boolean checkVariableName(String var) {
         Pattern pattern = Pattern.compile("^[a-zA-Z_$][a-zA-Z_$0-9]*$");
         return pattern.matcher(var).matches();
@@ -158,7 +159,7 @@ public class UtilityFunctions {
                         Object ob = map.get(word);
                         if (ob instanceof String)
                             list.add((String) ob);
-                        else if (ob instanceof Integer)
+                        else if (ob instanceof Long)
                             list.add(Long.toString((long) ob));
                         else if (ob instanceof Double)
                             list.add(Double.toString((Double) ob));
@@ -217,7 +218,7 @@ public class UtilityFunctions {
                     for (String element : elements) {
                         result.add(convertToObject(evaluateExpression(element)));
                     }
-                    System.out.println(result.toString());
+                  
                     createArray(words[0],result);
                 }
             }

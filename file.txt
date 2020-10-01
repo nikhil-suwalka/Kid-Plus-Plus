@@ -1,2 +1,4 @@
 x is 55
-a has 1,2,3,x,"Hello"
+b is 99
+a has 1,2,3,x+b,"Hello"
+print a
