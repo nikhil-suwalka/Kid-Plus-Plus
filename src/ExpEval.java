@@ -13,7 +13,7 @@ public class ExpEval
         }
         return count<=1;
     }
-    public static Double evaluate(String expression) throws InvalidExpression, NotANumber {
+    public static Object evaluate(String expression) throws InvalidExpression, NotANumber {
         char[] tokens = expression.toCharArray();
 
         // Stack for numbers: 'values'
@@ -78,7 +78,12 @@ public class ExpEval
                 values.push(applyOp(ops.pop(), values.pop(), values.pop()));
 
             // Top of 'values' contains result, return it
-            return values.pop();
+            double val = values.pop();
+            if(val==Math.floor(val)) {
+                return (long) Math.floor(val);
+            }
+            else
+                return val;
         }catch (EmptyStackException e){
             throw new InvalidExpression();
         }

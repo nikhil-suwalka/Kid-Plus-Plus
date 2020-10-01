@@ -63,13 +63,26 @@ public class UtilityFunctions {
             }
         }
     }
+
+    public static Object convertToObject(String str) throws InvalidExpression {
+        int datatype = findDataType(str);
+        if (datatype == 1)
+            return str;
+        else if (datatype == 2)
+            return Long.parseLong(str);
+        else if (datatype == 3)
+            return Double.parseDouble(str);
+        else if (datatype == 4)
+            return Boolean.parseBoolean(str);
+        throw new InvalidExpression();
+    }
     
     public static boolean checkVariableName(String var) {
         Pattern pattern = Pattern.compile("^[a-zA-Z_$][a-zA-Z_$0-9]*$");
         return pattern.matcher(var).matches();
     }
     
-    public static boolean setDataType(String name, String value) {
+    public static boolean createVariable(String name, String value) {
         
         if (findDataType(value) == 1) {
             map.put(name, value);
@@ -84,6 +97,10 @@ public class UtilityFunctions {
             map.put(name, Boolean.parseBoolean(value));
             return true;
         } else return false;
+    }
+
+    public static void createArray(String name,ArrayList<Object> value){
+        map.put(name,value);
     }
     
     public static boolean isANumberOrOperator(String var) {
@@ -135,7 +152,6 @@ public class UtilityFunctions {
                 } else if (isNumeric(word)) {
                     list.add(word.trim() + " ");
                 } else {
-                    System.out.println(word);
                     if (word.equals("true") || word.equals("false")) {
                         list.add(word);
                     } else if (map.containsKey(word)) {
@@ -185,14 +201,27 @@ public class UtilityFunctions {
         return null;
     }
     
-    public static void handler(String code) throws InvalidVariableName {
+    public static void handler(String code) throws InvalidVariableName, InvalidExpression {
         String[] words = code.split(" ");
         if (!keywords.contains(words[0])) {//new variable
-            if (words[1].equals("is") && UtilityFunctions.checkVariableName(words[0])) {
-                ArrayList<String> data = new ArrayList<>(Arrays.asList(code.split(" is ")));
-                String result = evaluateExpression(data.get(1));
-                boolean opCode = setDataType(data.get(0), result);
-            } else {
+            if(UtilityFunctions.checkVariableName(words[0])) {
+                if (words[1].equals("is")) {
+                    ArrayList<String> data = new ArrayList<>(Arrays.asList(code.split(" is ")));
+                    String result = evaluateExpression(data.get(1));
+                    boolean opCode = createVariable(data.get(0), result);
+                } else if (words[1].equals("has")) {
+                    ArrayList<String> data = new ArrayList<>(Arrays.asList(code.split(" has ")));
+                    ArrayList<String> elements = new ArrayList<>(Arrays.asList(data.get(1).split(",")));
+                    ArrayList<Object> result = new ArrayList<>();
+
+                    for (String element : elements) {
+                        result.add(convertToObject(evaluateExpression(element)));
+                    }
+                    System.out.println(result.toString());
+                    createArray(words[0],result);
+                }
+            }
+            else {
                 throw new InvalidVariableName(words[0]);
             }
         } else if (words[0].equals("print")) {

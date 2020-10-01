@@ -9,8 +9,6 @@ public class Parser {
     public static void main(String[] args) {
         
         boolean b = false;
-    
-        System.out.println(b + "das");
         String filename;
 //        if(args.length == 0)
 //            System.out.println("ERROR");
