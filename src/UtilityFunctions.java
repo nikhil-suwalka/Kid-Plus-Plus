@@ -5,7 +5,8 @@ import java.util.stream.Collectors;
 public class UtilityFunctions {
     
     static Map<String, Object> map = new HashMap<>();
-    
+    static final ArrayList<String> keywords = new ArrayList<>(Arrays.asList("is","has","print","add","find","sort","remove","at","if","then","else","loop","till","stop","end","from","to","as","gets","function","call","with"));
+
     public static String fixSpace(String data) {
         List<Character> dataArr = data.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
         ArrayList<Character> operator = new ArrayList<>(Arrays.asList('+', '-', '*', '/', '%', '(', ')'));
@@ -65,12 +66,13 @@ public class UtilityFunctions {
     
     public static boolean checkVariableName(String var) {
         Pattern pattern = Pattern.compile("^[a-zA-Z_$][a-zA-Z_$0-9]*$");
-        return (pattern.matcher(var).matches());
+        return pattern.matcher(var).matches();
     }
     
     public static boolean setDataType(String name, String value) {
-        if (!checkVariableName(name))
+        if (!checkVariableName(name)) {
             return false;
+        }
         
         if (findDataType(value) == 1) {
             map.put(name, value);
@@ -157,15 +159,57 @@ public class UtilityFunctions {
         return list;
     }
     
-    static String getValue(String str) throws CantFindSymbol, InvalidOperation {
+    static ArrayList<String> getValue(String str) throws CantFindSymbol, InvalidOperation {
         
         ArrayList<String> list = convertToArray(str);
         
-        for (String s : list) {
-            System.out.println(s);
-        }
+//        for (String s : list) {
+//            System.out.println(s);
+//        }
         
-        return "";
+        return list;
+    }
+
+    public static String evaluateExpression(String rhs){
+        try {
+            //setDataType(data.get(0),ExpEval.evaluate().toString());
+            ArrayList<String> out =  UtilityFunctions.getValue(rhs);
+            StringBuilder result = new StringBuilder();
+            String temp;
+            int dType;
+            //  1:String 2:Long 3:Double 4:Boolean -1:Invalid
+            for(int i=0;i<out.size();i++){
+                dType = findDataType(out.get(i));
+                if(dType==1 || dType==2 || dType==3){
+                    result.append(out.get(i));
+                }else if(dType==4){
+                    throw new InvalidExpression();
+                }else {
+                    temp = ExpEval.evaluate(out.get(i)).toString();
+                    result.append(temp);
+                }
+            }
+            return result.toString();
+        } catch (NotANumber | InvalidExpression | CantFindSymbol | InvalidOperation invalidOperation) {
+            invalidOperation.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void handler(String code) throws InvalidVariableName {
+        String[] words = code.split(" ");
+        if(!keywords.contains(words[0])){//new variable
+            if(UtilityFunctions.checkVariableName(words[0])){
+                ArrayList<String> data = new ArrayList<>(Arrays.asList(code.split(" is ")));
+                String result = evaluateExpression(data.get(1));
+                boolean opCode = setDataType(data.get(0),result);
+            }else {
+                throw new InvalidVariableName(words[0]);
+            }
+        }else if(words[0].equals("print")){
+            String[] exp = code.split("print ");
+            System.out.println(evaluateExpression(exp[1]).replaceAll("\"",""));
+        }
     }
     
 }

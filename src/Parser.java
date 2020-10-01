@@ -25,12 +25,13 @@ public class Parser {
                 Scanner scanner = new Scanner(myFile);
                 while (scanner.hasNextLine()) {
                     line = scanner.nextLine();
-                    words = new ArrayList<>(Arrays.asList(line.split(" ")));
-                    
-                    int is_index = words.indexOf("is");
-                    if (is_index > 0) {
-                        UtilityFunctions.setDataType(words.get(is_index - 1), UtilityFunctions.getValue(line.substring(line.indexOf("is") + 3)));
-                    }
+                    UtilityFunctions.handler(line);
+//                    words = new ArrayList<>(Arrays.asList(line.split(" ")));
+//
+//                    int is_index = words.indexOf("is");
+//                    if (is_index > 0) {
+//                        UtilityFunctions.setDataType(words.get(is_index - 1), UtilityFunctions.getValue(line.substring(line.indexOf("is") + 3)));
+//                    }
                 }
                 scanner.close();
                 
