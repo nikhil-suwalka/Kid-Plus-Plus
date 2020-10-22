@@ -58,12 +58,15 @@ public class UtilityFunctions {
             if (value.equals("true") || value.equals("false")) {
                 return 4;
                 
-            } else {
+            }
+            if (value.startsWith("[") && value.endsWith("]"))
+                return 5;
+            else {
                 return -1;
             }
         }
     }
-
+    
     public static Object convertToObject(String str) throws InvalidExpression {
         int datatype = findDataType(str);
         if (datatype == 1)
@@ -99,15 +102,16 @@ public class UtilityFunctions {
             return true;
         } else return false;
     }
-
-    public static void createArray(String name,ArrayList<Object> value){
-        map.put(name,value);
+    
+    public static void createArray(String name, ArrayList<Object> value) {
+        map.put(name, value);
     }
     
     public static boolean isANumberOrOperator(String var) {
         Pattern pattern = Pattern.compile("[()+\\-*/.%]|[0-9]+");
         return pattern.matcher(var).matches();
     }
+    
     
     static ArrayList<String> convertToArray(String str) throws CantFindSymbol, InvalidOperation {
         
@@ -165,6 +169,9 @@ public class UtilityFunctions {
                             list.add(Double.toString((Double) ob));
                         else if (ob instanceof Boolean)
                             list.add(Boolean.toString((Boolean) ob));
+                        else if (ob instanceof ArrayList) {
+                            list.add(ob.toString());
+                        }
                     } else throw new CantFindSymbol(word);
                     
                 }
@@ -180,7 +187,6 @@ public class UtilityFunctions {
     
     public static String evaluateExpression(String rhs) {
         try {
-            //setDataType(data.get(0),ExpEval.evaluate().toString());
             ArrayList<String> out = UtilityFunctions.convertToArray(rhs);
             StringBuilder result = new StringBuilder();
             String temp;
@@ -188,7 +194,7 @@ public class UtilityFunctions {
             //  1:String 2:Long 3:Double 4:Boolean -1:Invalid
             for (int i = 0; i < out.size(); i++) {
                 dType = findDataType(out.get(i));
-                if (dType == 1 || dType == 2 || dType == 3 || dType == 4) {
+                if (dType >= 1 && dType <= 5) {
                     result.append(out.get(i));
                 } else {
                     temp = ExpEval.evaluate(out.get(i)).toString();
@@ -202,10 +208,10 @@ public class UtilityFunctions {
         return null;
     }
     
-    public static void handler(String code) throws InvalidVariableName, InvalidExpression {
+    public static void handler(String code) throws Exception {
         String[] words = code.split(" ");
         if (!keywords.contains(words[0])) {//new variable
-            if(UtilityFunctions.checkVariableName(words[0])) {
+            if (UtilityFunctions.checkVariableName(words[0])) {
                 if (words[1].equals("is")) {
                     ArrayList<String> data = new ArrayList<>(Arrays.asList(code.split(" is ")));
                     String result = evaluateExpression(data.get(1));
@@ -214,20 +220,53 @@ public class UtilityFunctions {
                     ArrayList<String> data = new ArrayList<>(Arrays.asList(code.split(" has ")));
                     ArrayList<String> elements = new ArrayList<>(Arrays.asList(data.get(1).split(",")));
                     ArrayList<Object> result = new ArrayList<>();
-
+                    
                     for (String element : elements) {
                         result.add(convertToObject(evaluateExpression(element)));
                     }
-                  
-                    createArray(words[0],result);
+                    
+                    createArray(words[0], result);
                 }
-            }
-            else {
+            } else {
                 throw new InvalidVariableName(words[0]);
             }
         } else if (words[0].equals("print")) {
             String[] exp = code.split("print ");
             System.out.println(evaluateExpression(exp[1]).replaceAll("[\"']", ""));
+        } else if (words[0].equals("add")) {
+            if (UtilityFunctions.map.containsKey(words[words.length - 1])) {
+                if (UtilityFunctions.map.containsKey(words[words.length - 1])) {
+                    if (words[words.length - 2].equals("to")) {
+                        StringBuilder result = new StringBuilder();
+                        for (int i = 1; i < words.length - 2; i++) {
+                            result.append(words[i]);
+                        }
+                        ((ArrayList<Object>) UtilityFunctions.map.get(words[words.length - 1])).add(evaluateExpression(result.toString()));
+                    } else {
+                        throw new InvalidExpression();
+                    }
+                } else {
+                    throw new Exception("Variable " + words[words.length - 1] + " is not an array!");
+                }
+            } else {
+                throw new InvalidVariableName(words[words.length - 1]);
+            }
+        } else if (words[0].equals("find")) {
+            if (map.containsKey(words[words.length - 1]) && map.get(words[words.length - 1]) instanceof ArrayList) {
+                if (words[words.length - 2].equals("in")) {
+                    StringBuilder string = new StringBuilder();
+                    
+                    for (int i = 1; i < words.length - 2; i++)
+                        string.append(words[i]);
+                    String result = evaluateExpression(string.toString());
+                    Object ob = convertToObject(result);
+                    ArrayList temp = ((ArrayList) map.get(words[words.length - 1]));
+                    if (temp.contains(ob))
+                        System.out.println(temp.indexOf(ob) + 1);
+                    else
+                        System.out.println("Not found");
+                } else throw new InvalidExpression();
+            } else throw new InvalidVariableName(words[words.length - 1]);
         }
     }
     

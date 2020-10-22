@@ -1,11 +1,8 @@
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Parser {
-    
-    
     public static void main(String[] args) {
         
         boolean b = false;
@@ -26,13 +23,9 @@ public class Parser {
                 Scanner scanner = new Scanner(myFile);
                 while (scanner.hasNextLine()) {
                     line = scanner.nextLine();
-                    UtilityFunctions.handler(line);
-//                    words = new ArrayList<>(Arrays.asList(line.split(" ")));
-//
-//                    int is_index = words.indexOf("is");
-//                    if (is_index > 0) {
-//                        UtilityFunctions.setDataType(words.get(is_index - 1), UtilityFunctions.getValue(line.substring(line.indexOf("is") + 3)));
-//                    }
+                    if (!line.isEmpty() && !line.startsWith("//")) {
+                        UtilityFunctions.handler(line);
+                    }
                 }
                 scanner.close();
                 
